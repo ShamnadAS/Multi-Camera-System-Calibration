@@ -1,7 +1,9 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include "src/calibration.hpp"
+#include <opencv2/opencv.hpp>
 
+using namespace cv;
 using Eigen::Vector3d;
 using Eigen::Vector2d;
 
@@ -24,4 +26,8 @@ int main()
 
     Eigen::MatrixXd projection = calibration.CalculateProjection(worldPos, pixelPos);
     calibration.CalculateExtrinsicProperties(projection);
+
+    std::cout << "OpenCV version is: " << CV_VERSION << std::endl;
+
+    return 0;
 }
