@@ -8,7 +8,7 @@ using Eigen::MatrixXd;
 class CalibrateCamera
 {
 public:
-	void CalculateResult(const std::string imagesRoot, const cv::Size& gridSize);
+	void CalculateResult(const std::string imagesRoot, const cv::Size& gridSize, std::vector<Eigen::MatrixXd> extrinsicMatrices);
 
 private:
 	bool display = true;
@@ -20,14 +20,15 @@ private:
 	void DisplayInputs(const cv::Mat& image, std::vector<cv::Point2f> pts, cv::Size gridSize, bool isFound);
 };
 
-void CalibrateCamera::CalculateResult(const std::string imagesRoot, const cv::Size& gridSize)
+void CalibrateCamera::CalculateResult(const std::string imagesRoot, const cv::Size& gridSize,
+	std::vector<Eigen::MatrixXd> extrinsics)
 {
 	std::vector<Eigen::MatrixXd> projectionMatrices;
 
 	this->HandleInputs(imagesRoot, gridSize);
 	this->CalculateProjection(projectionMatrices);
-	std::cout << projectionMatrices[0] << std::endl;
-	//this->CalculateExtrinsicProperties(extrinsics, projectionMatrices);
+	
+	this->CalculateExtrinsicProperties(extrinsics, projectionMatrices);
 }
 
 void CalibrateCamera::HandleInputs(const std::string imagesRoot, const cv::Size& gridSize)
@@ -69,7 +70,7 @@ void CalibrateCamera::HandleInputs(const std::string imagesRoot, const cv::Size&
 		{
 			for (int c = 0; c < gridSize.width; ++c)
 			{
-				pts.emplace_back(c, -r);
+				pts.emplace_back(c, r);
 			}
 		}
 		BoardPts.push_back(pts);
@@ -102,7 +103,7 @@ void  CalibrateCamera::CalculateProjection(std::vector<Eigen::MatrixXd> &project
 	{
 		unsigned n = BoardPts[i].size();
 		
-		MatrixXd M(2 * n, 12);
+		Eigen::MatrixXf M(2 * n, 12);
 		M.setZero();
 
 		for (int j = 0; j < n; j++)
@@ -112,27 +113,23 @@ void  CalibrateCamera::CalculateProjection(std::vector<Eigen::MatrixXd> &project
 
 			M(2 * j, 0) = boardPoint.x;
 			M(2 * j, 1) = boardPoint.y;
-			M(2 * j, 2) = 0;
 			M(2 * j, 3) = 1;
 
 			M(2 * j, 8) = -boardPoint.x * imagePoint.x;
 			M(2 * j, 9) = -boardPoint.y * imagePoint.x;
-			M(2 * j, 10) = 0;
 			M(2 * j, 11) = -imagePoint.x;
 
 			M((2 * j) + 1, 4) = boardPoint.x;
 			M((2 * j) + 1, 5) = boardPoint.y;
-			M((2 * j) + 1, 6) = 0;
 			M((2 * j) + 1, 7) = 1;
 
-			M((2 * j) + 1, 8) = -boardPoint.x * imagePoint.x;
+			M((2 * j) + 1, 8) = -boardPoint.x * imagePoint.y;
 			M((2 * j) + 1, 9) = -boardPoint.y * imagePoint.y;
-			M((2 * j) + 1, 10) = 0;
 			M((2 * j) + 1, 11) = -imagePoint.y;
 		}
 
-		Eigen::JacobiSVD<Eigen::MatrixXd> svd(M, Eigen::ComputeFullV);
-		Eigen::VectorXd V = svd.matrixV().col(11);
+		Eigen::JacobiSVD<Eigen::MatrixXf> svd(M, Eigen::ComputeFullV);
+		Eigen::VectorXf V = svd.matrixV().col(11);
 
 		MatrixXd projection(3, 4);
 

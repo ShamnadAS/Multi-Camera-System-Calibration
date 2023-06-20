@@ -154,8 +154,8 @@
     <ClCompile Include="Multi-Camera-System-Calibration.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="compareCameras.hpp" />
     <ClInclude Include="src\calibrateCamera.hpp" />
+    <ClInclude Include="src\compareCameras.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

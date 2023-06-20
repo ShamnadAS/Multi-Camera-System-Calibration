@@ -23,7 +23,7 @@
     <ClInclude Include="src\calibrateCamera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="compareCameras.hpp">
+    <ClInclude Include="src\compareCameras.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
